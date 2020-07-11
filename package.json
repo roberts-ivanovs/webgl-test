@@ -1,0 +1,61 @@
+{
+  "name": "create-wasm-app",
+  "version": "0.1.0",
+  "description": "create an app to consume rust-generated wasm packages",
+  "main": "index.js",
+  "scripts": {
+    "prod": "webpack --mode production",
+    "start": "webpack --mode development --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yalld/rust-wasm-tsx-django-psql-docker"
+  },
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "rust",
+    "webpack"
+  ],
+  "author": "Roberts Ivanovs <robertsivanovs1999@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yalld/rust-wasm-tsx-django-psql-docker/issues"
+  },
+  "homepage": "https://github.com/yalld/rust-wasm-tsx-django-psql-docker#readme",
+  "devDependencies": {
+    "@types/react": "^16.9.41",
+    "@types/react-dom": "^16.9.8",
+    "@typescript-eslint/eslint-plugin": "^3.6.0",
+    "@typescript-eslint/parser": "^2.34.0",
+    "copy-webpack-plugin": "^5.0.0",
+    "eslint": "^7.3.1",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-config-airbnb-typescript": "^8.0.2",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.20.3",
+    "eslint-plugin-react-hooks": "^2.5.1",
+    "hello-wasm-pack": "^0.1.0",
+    "source-map-loader": "^1.0.1",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.6",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5",
+    "mini-css-extract-plugin": "^0.9.0",
+    "sass-loader": "^8.0.2"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "^3.5.0",
+    "@wasm-tool/wasm-pack-plugin": "^1.3.1",
+    "bootstrap": "^4.5.0",
+    "css-loader": "^3.6.0",
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "style-loader": "^1.2.1",
+    "wasm-app": "file:/opt/services/djangoapp/src/pkg"
+  }
+}

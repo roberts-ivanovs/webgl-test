@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+
+  djangoapp:
+    environment:
+      - DEBUG=0
+    command: sh -c "python manage.py migrate && gunicorn --bind :8000 core.wsgi:application --log-level debug"
+
+  nginx:
+    ports:
+      - 80:80
+
+  node:
+    command: sh -c "npm install && npm run-script prod"
