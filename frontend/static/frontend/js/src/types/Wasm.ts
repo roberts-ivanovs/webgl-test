@@ -1,3 +1,3 @@
 export interface Wasm {
-  greet(): void;
+  start(): void;
 }
