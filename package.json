@@ -56,6 +56,6 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "style-loader": "^1.2.1",
-    "wasm-app": "file:/opt/services/djangoapp/src/pkg"
+    "wasm-app": "file:./pkg"
   }
 }
