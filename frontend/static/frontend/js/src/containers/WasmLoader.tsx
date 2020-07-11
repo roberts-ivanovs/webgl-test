@@ -4,7 +4,7 @@ import { Wasm } from '../types/Wasm';
 async function loadWasm(
   cb: React.Dispatch<React.SetStateAction<Wasm | undefined>>,
 ): Promise<void> {
-  const wasm = await import('wasm-app');
+  const wasm: Wasm = await import('wasm-app');
   cb(wasm);
 }
 
@@ -13,6 +13,5 @@ export default function WasmLoader(): ReactElement {
   useEffect(() => {
     loadWasm(setWasm).catch((e) => console.log('Something went wrong when fetching wasm'));
   }, []);
-  wasm?.greet();
-  return <div>Hello</div>;
+  return <canvas id="canvas" height="600" width="800" />;
 }
