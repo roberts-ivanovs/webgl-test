@@ -11,7 +11,10 @@ async function loadWasm(
 export default function WasmLoader(): ReactElement {
   const [wasm, setWasm] = useState<Wasm>();
   useEffect(() => {
-    loadWasm(setWasm).catch((e) => console.log('Something went wrong when fetching wasm'));
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    loadWasm(setWasm).catch((e: string) =>
+      alert(`Something went wrong when fetching wasm!\n${e}`),
+    );
   }, []);
   return <canvas id="canvas" height="600" width="800" />;
 }

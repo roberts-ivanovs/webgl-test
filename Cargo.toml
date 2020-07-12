@@ -37,8 +37,9 @@ features = [
   'WebGlProgram',
   'WebGlShader',
   'Window',
+  'console',
 ]
-version = "0.3.4"
+version = "0.3"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
