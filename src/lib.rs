@@ -1,6 +1,15 @@
+mod cube;
+
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{WebGlProgram, WebGlRenderingContext, WebGlShader};
+use js_sys;
+use web_sys::{WebGlProgram, WebGlRenderingContext, WebGlShader, console};
+
+pub fn console_log(to_log: &str ) {
+    let array = js_sys::Array::new();
+    array.push(&to_log.into());
+    console::log(&array);
+}
 
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
@@ -28,27 +37,23 @@ pub fn start() -> Result<(), JsValue> {
         WebGlRenderingContext::FRAGMENT_SHADER,
         r#"
         void main() {
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
         }"#,
     )?;
+    // let program = link_program(&context)?;
     let program = link_program(&context, &vert_shader, &frag_shader)?;
+
+    console_log("Here");
     context.use_program(Some(&program));
 
-    let vertices: [f32; 9] = [-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0];
+    let cube = cube::Cube::new(2.);
+    let vertices: Vec<f32> = cube.as_vector();
 
     let buffer = context.create_buffer().ok_or("failed to create buffer")?;
     context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
 
-    // Note that `Float32Array::view` is somewhat dangerous (hence the
-    // `unsafe`!). This is creating a raw view into our module's
-    // `WebAssembly.Memory` buffer, but if we allocate more pages for ourself
-    // (aka do a memory allocation in Rust) it'll cause the buffer to change,
-    // causing the `Float32Array` to be invalid.
-    //
-    // As a result, after `Float32Array::view` we have to be very careful not to
-    // do any memory allocations before it's dropped.
     unsafe {
-        let vert_array = js_sys::Float32Array::view(&vertices);
+        let vert_array = js_sys::Float32Array::view(vertices.as_slice());
 
         context.buffer_data_with_array_buffer_view(
             WebGlRenderingContext::ARRAY_BUFFER,
