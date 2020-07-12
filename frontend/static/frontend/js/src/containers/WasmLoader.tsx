@@ -12,9 +12,7 @@ export default function WasmLoader(): ReactElement {
   const [wasm, setWasm] = useState<Wasm>();
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/ban-types
-    loadWasm(setWasm).catch((e: string) =>
-      alert(`Something went wrong when fetching wasm!\n${e}`),
-    );
+    loadWasm(setWasm).catch((e: string) => alert(`Something went wrong when fetching wasm!\n${e}`));
   }, []);
-  return <canvas id="canvas" height="600" width="800" />;
+  return <canvas id="canvasRust" height="600" width="800" />;
 }

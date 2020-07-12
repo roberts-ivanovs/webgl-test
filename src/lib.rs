@@ -10,17 +10,10 @@ use wasm_bindgen::JsCast;
 use web_sys::{console, WebGlProgram, WebGlRenderingContext, WebGlShader};
 use programs::{cube::Cube};
 
-
-pub fn console_log(to_log: &str) {
-    let array = js_sys::Array::new();
-    array.push(&to_log.into());
-    console::log(&array);
-}
-
-#[wasm_bindgen]
+// #[wasm_bindgen]
 pub struct GlClient {
-    gl: WebGlRenderingContext,
-    program_cube: programs::cube::Cube,
+    pub gl: WebGlRenderingContext,
+    // program_cube: programs::cube::Cube,
 }
 
 impl GlClient {
@@ -28,7 +21,7 @@ impl GlClient {
         let gl: WebGlRenderingContext = gl_setup::initialize_webgl_context().unwrap();
 
         Self {
-            program_cube: <Cube as WebGlRender<Cube>>::new(&gl),
+            // program_cube: <Cube as WebGlRender<Cube>>::new(&gl),
             gl,
         }
     }
@@ -42,5 +35,8 @@ impl GlClient {
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
     set_panic_hook();
+    let client = GlClient::new();
+    // client.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    // client.gl.
     Ok(())
 }

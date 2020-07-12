@@ -1,6 +1,13 @@
 use web_sys::WebGlProgram;
 use web_sys::WebGlShader;
-use web_sys::WebGlRenderingContext;
+use web_sys::{console, WebGlRenderingContext};
+
+
+pub fn console_log(to_log: &str) {
+    let array = js_sys::Array::new();
+    array.push(&to_log.into());
+    console::log(&array);
+}
 
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -46,11 +53,11 @@ pub fn link_program(
         .create_program()
         .ok_or_else(|| String::from("Error creating program"))?;
     let vert_shader = compile_shader(
-        &gl, GL::VERTEX_SHADER, vert_source
+        &gl, WebGlRenderingContext::VERTEX_SHADER, vert_source
     ).unwrap();
 
     let frag_shader = compile_shader(
-        &gl, GL::FRAGMENT_SHADER, frag_source,
+        &gl, WebGlRenderingContext::FRAGMENT_SHADER, frag_source,
     ).unwrap();
 
     gl.attach_shader(&program, &vert_shader);
