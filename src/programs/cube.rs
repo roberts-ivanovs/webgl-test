@@ -1,8 +1,18 @@
 mod plane;
 mod point;
 
+use crate::shaders::{fragment::color_2d, vertex::graph_3d};
+use crate::utils::link_program;
+
+use web_sys::WebGlBuffer;
+use web_sys::WebGlProgram;
+use web_sys::WebGlUniformLocation;
+
+use js_sys::WebAssembly;
 use plane::Plane;
 use point::Point;
+use wasm_bindgen::JsCast;
+use web_sys::WebGlRenderingContext;
 
 pub struct Cube {
     pub sides: [Plane; 6],
@@ -57,5 +67,4 @@ impl Cube {
             .flat_map(|side| side.points_as_array().clone())
             .collect::<Vec<f32>>()
     }
-
 }

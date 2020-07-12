@@ -22,10 +22,5 @@ impl Plane {
             })
         });
         returnable
-        // self.points
-        //     .iter()
-        //     .flat_map(|p| p.as_array().to_owned().iter())
-        //     .cloned()
-        //     .collect()
     }
 }
