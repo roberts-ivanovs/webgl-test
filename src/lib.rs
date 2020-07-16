@@ -50,8 +50,7 @@ impl GlClient {
             },
             RenderObject::Box2D(box2d) => match &box2d {
                 Some(box2d) => {
-                    let buffers = box2d.init_buffers(&self.gl);
-                    box2d.draw_scene(&self.gl, buffers);
+                    box2d.draw_scene(&self.gl);
                 }
                 None => {}
             },

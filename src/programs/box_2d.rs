@@ -19,6 +19,7 @@ pub struct UniformLocations {
 }
 
 pub struct Box2D {
+    buffer: WebGlBuffer,
     program: WebGlProgram,
     attribute_locations: AttributeLocations,
     uniform_locations: UniformLocations,
@@ -39,14 +40,17 @@ impl Box2D {
                 .unwrap(),
         };
 
+        let buffer = Box2D::init_buffers(&gl);
+
         Self {
+            buffer,
             attribute_locations,
             uniform_locations,
             program,
         }
     }
 
-    pub fn init_buffers(&self, gl: &GL) -> WebGlBuffer {
+    fn init_buffers(gl: &GL) -> WebGlBuffer {
         let position_buffer = gl.create_buffer().unwrap();
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
         let positions = [-1., 1., 1., 1., -1., -1., 1., -1.];
@@ -63,7 +67,7 @@ impl Box2D {
         position_buffer
     }
 
-    pub fn draw_scene(&self, gl: &GL, buffers: WebGlBuffer) {
+    pub fn draw_scene(&self, gl: &GL) {
         gl.clear_color(0., 0., 0., 1.);
         gl.clear_depth(1.);
         gl.enable(GL::DEPTH_TEST);
@@ -93,7 +97,7 @@ impl Box2D {
         let stride = 0;
         let offset = 0;
 
-        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&buffers));
+        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.buffer));
         gl.vertex_attrib_pointer_with_i32(
             self.attribute_locations.vertex_position as u32,
             number_components,
