@@ -1,34 +1,15 @@
-#[macro_use]
-extern crate lazy_static;
-
 mod gl_setup;
 mod programs;
 mod shaders;
 mod utils;
 
 use crate::programs::box_2d::Box2D;
-use crate::shaders::fragment::fetch_f_shader;
-use crate::shaders::vertex::fetch_v_shader;
+use crate::shaders::fragment::F_SHADER;
+use crate::shaders::vertex::V_SHADER;
 use programs::cube::Cube;
 use utils::{link_program, set_panic_hook};
 use wasm_bindgen::prelude::*;
 use web_sys::{WebGlProgram, WebGlRenderingContext};
-
-lazy_static! {
-    static ref F_SHADER: &'static str = r#"
-    void main() {
-      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
-    "#;
-    static ref V_SHADER: &'static str = r#"
-    attribute vec4 aVertexPosition;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-    void main() {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-    }
-    "#;
-}
 
 pub enum RenderObject {
     Cube(Option<Cube>),

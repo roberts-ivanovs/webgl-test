@@ -64,14 +64,10 @@ impl Box2D {
     }
 
     pub fn draw_scene(&self, gl: &GL, buffers: WebGlBuffer) {
-        // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
-        // TODO LEFT OFF AT "Rendering the scene"
-
         gl.clear_color(0., 0., 0., 1.);
         gl.clear_depth(1.);
         gl.enable(GL::DEPTH_TEST);
         gl.depth_func(GL::LEQUAL);
-
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
 
         let field_of_view: f32 = (45. * PI / 180.) as f32;

@@ -1,8 +1,4 @@
-use std::fs;
-
-pub fn fetch_v_shader() -> &'static str {
-    // fs::read_to_string("./vsSource.glsl").unwrap()
-    r#"
+pub const V_SHADER: &str = r#"
     attribute vec4 aVertexPosition;
 
     uniform mat4 uModelViewMatrix;
@@ -11,5 +7,5 @@ pub fn fetch_v_shader() -> &'static str {
     void main() {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
     }
-    "#
-}
+"#;
+
