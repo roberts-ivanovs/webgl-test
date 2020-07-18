@@ -2,6 +2,7 @@
 // use self::point::Point;
 use super::point::Point;
 
+#[derive(Debug)]
 pub struct Plane {
     pub points: [Point; 4],
 }

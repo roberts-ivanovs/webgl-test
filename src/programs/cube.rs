@@ -4,6 +4,7 @@ mod point;
 use plane::Plane;
 use point::Point;
 
+#[derive(Debug)]
 pub struct Cube {
     pub sides: [Plane; 6],
 }

@@ -1,7 +1,5 @@
-use nalgebra_glm::U1;
-use crate::utils::console_log;
-use core::f64::consts::PI;
-use js_sys::{ArrayBuffer, Float32Array};
+use core::fmt::Debug;
+use core::f32::consts::PI;
 use nalgebra_glm as glm;
 
 use web_sys::WebGlBuffer;
@@ -23,7 +21,21 @@ pub struct Box2D {
     program: WebGlProgram,
     attribute_locations: AttributeLocations,
     uniform_locations: UniformLocations,
+    aspect: f32,
+    field_of_view: f32,
+    pub trans_x: f32,
+    pub trans_y: f32,
+    pub trans_z: f32,
 }
+
+
+// impl Debug for Box2D {
+//     fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+
+
+//     }
+
+// }
 
 impl Box2D {
     pub fn new(gl: &GL, program: WebGlProgram) -> Self {
@@ -47,6 +59,11 @@ impl Box2D {
             attribute_locations,
             uniform_locations,
             program,
+            field_of_view: (45. * PI / 180.) as f32,
+            aspect: 4. / 3. as f32,
+            trans_x: 0.,
+            trans_y: 0.,
+            trans_z: -6.,
         }
     }
 
@@ -56,13 +73,9 @@ impl Box2D {
         let positions = [-1., 1., 1., 1., -1., -1., 1., -1.];
 
         unsafe {
-        let vert_array = js_sys::Float32Array::view(&positions);
+            let vert_array = js_sys::Float32Array::view(&positions);
 
-            gl.buffer_data_with_array_buffer_view(
-                GL::ARRAY_BUFFER,
-                &vert_array,
-                GL::STATIC_DRAW,
-            );
+            gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
         }
         position_buffer
     }
@@ -74,22 +87,16 @@ impl Box2D {
         gl.depth_func(GL::LEQUAL);
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
 
-        let field_of_view: f32 = (45. * PI / 180.) as f32;
-        let aspect: f32 = 4. / 3.;
-        // let aspect = gl.canvas().unwrap().client_width / gl.canvas().unwrap().clientHeight;
         let z_near: f32 = 0.1;
         let z_far: f32 = 100.0;
 
-        let projection_matrix = glm::perspective(aspect, field_of_view, z_near, z_far);
+        let projection_matrix = glm::perspective(self.aspect, self.field_of_view, z_near, z_far);
         let mut empty_matrix = glm::mat4x4(
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );
         empty_matrix.fill_with_identity();
-        let translation_vector = glm::vec3(0.0, 0.0, -6.0);
-        let model_view_matrix= glm::translate(&empty_matrix, &translation_vector);
-        console_log(format!("translation_vector: {:?}", translation_vector).as_ref());
-        console_log(format!("model_view_matrix: {:?}", model_view_matrix).as_ref());
-        console_log(format!("projection_matrix: {:?}", projection_matrix).as_ref());
+        let translation_vector = glm::vec3(self.trans_x, self.trans_y, self.trans_z);
+        let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
 
         let number_components = 2;
         let buffer_type = GL::FLOAT;
@@ -104,17 +111,32 @@ impl Box2D {
             buffer_type,
             normalize,
             stride,
-            offset
+            offset,
         );
         gl.enable_vertex_attrib_array(self.attribute_locations.vertex_position as u32);
 
         gl.use_program(Some(&self.program));
         let transpose = false;
-        gl.uniform_matrix4fv_with_f32_array(Some(&self.uniform_locations.projection_matrix), transpose, projection_matrix.as_slice());
-        gl.uniform_matrix4fv_with_f32_array(Some(&self.uniform_locations.model_view_matrix), transpose, model_view_matrix.as_slice());
+        gl.uniform_matrix4fv_with_f32_array(
+            Some(&self.uniform_locations.projection_matrix),
+            transpose,
+            projection_matrix.as_slice(),
+        );
+        gl.uniform_matrix4fv_with_f32_array(
+            Some(&self.uniform_locations.model_view_matrix),
+            transpose,
+            model_view_matrix.as_slice(),
+        );
 
         let offset = 0;
         let vertex_count = 4;
         gl.draw_arrays(GL::TRIANGLE_STRIP, offset, vertex_count);
+    }
+
+    pub fn flied_of_view(&mut self, degrees: f32) {
+        self.field_of_view = (degrees * PI / 180.) as f32;
+    }
+    pub fn aspect(&mut self, width: f32, height: f32) {
+        self.aspect = width / height as f32;
     }
 }

@@ -3,68 +3,99 @@ mod programs;
 mod shaders;
 mod utils;
 
+use std::fmt::{Debug};
 use crate::programs::box_2d::Box2D;
+use crate::programs::cube::Cube;
 use crate::shaders::fragment::F_SHADER;
 use crate::shaders::vertex::V_SHADER;
-use programs::cube::Cube;
-use utils::{link_program, set_panic_hook};
+use utils::{console_log, link_program, set_panic_hook};
 use wasm_bindgen::prelude::*;
-use web_sys::{WebGlProgram, WebGlRenderingContext};
+use web_sys::{WebGlProgram, WebGlRenderingContext as GL};
+
 
 pub enum RenderObject {
-    Cube(Option<Cube>),
-    Box2D(Option<Box2D>),
+    Cube(Cube),
+    Box2D(Box2D),
 }
 
-// #[wasm_bindgen]
+
+#[wasm_bindgen]
+#[derive(Debug)]
+pub enum RenderableOption {
+    Cube,
+    Box2D,
+}
+
+#[wasm_bindgen]
 pub struct GlClient {
-    pub gl: WebGlRenderingContext,
-    pub object: RenderObject, // program_cube: programs::cube::Cube,
+    gl: GL,
+    object: Option<RenderObject>, // program_cube: programs::cube::Cube,
+    pub is_ready: bool,
 }
 
+#[wasm_bindgen]
 impl GlClient {
-    pub fn new(creatable: RenderObject) -> Self {
-        let gl: WebGlRenderingContext = gl_setup::initialize_webgl_context().unwrap();
-        let program: WebGlProgram =
-            link_program(&gl, &V_SHADER, &F_SHADER).unwrap();
-        match creatable {
-            RenderObject::Cube(_) => {
-                let object = RenderObject::Cube(Some(Cube::new(1.)));
-                Self {
-                    object: object,
-                    gl: gl,
+    #[wasm_bindgen(constructor)]
+    pub fn new(opt: RenderableOption) -> Self {
+        let gl: GL = gl_setup::initialize_webgl_context().unwrap();
+        let mut client: GlClient = GlClient {
+            gl,
+            object: None,
+            is_ready: false,
+        };
+        client.set_renderable(opt);
+        client
+    }
+
+    #[wasm_bindgen]
+    pub fn render(&self) {
+        match &self.object {
+            Some(renderable) => match &renderable {
+                RenderObject::Cube(_) => {
+                    // TODO Implement cube rendering
+                    console_log("Clearing the canvas");
+                    self.clear();
                 }
-            }
-            RenderObject::Box2D(_) => {
-                let object = RenderObject::Box2D(Some(Box2D::new(&gl, program)));
-                Self { object, gl }
+                RenderObject::Box2D(obj) => {
+                    console_log("Drawing Box2D");
+                    obj.draw_scene(&self.gl);
+                }
+            },
+            None => {
+                console_log("doing Nothing");
             }
         }
     }
 
-    pub fn render(&self) {
-        match &self.object {
-            RenderObject::Cube(cube) => match cube {
-                Some(_cube) => {}
-                None => {}
-            },
-            RenderObject::Box2D(box2d) => match &box2d {
-                Some(box2d) => {
-                    box2d.draw_scene(&self.gl);
-                }
-                None => {}
-            },
+    #[wasm_bindgen]
+    pub fn set_renderable(&mut self, opt: RenderableOption) {
+        console_log(&format!("Setting rendarble to {:?}", &opt));
+
+        self.is_ready = false;
+        let program: WebGlProgram = link_program(&self.gl, &V_SHADER, &F_SHADER).unwrap();
+
+        match opt {
+            RenderableOption::Cube => {
+                let object = RenderObject::Cube(Cube::new(1.));
+                self.object = Some(object);
+            }
+            RenderableOption::Box2D => {
+                let object = RenderObject::Box2D(Box2D::new(&self.gl, program));
+                self.object = Some(object);
+            }
         }
-        // <Cube as WebGlRender<Cube>>::render(&self.gl)
+        self.is_ready = true;
+    }
+
+    fn clear(&self) {
+        self.gl.clear_color(0., 0., 0., 1.);
+        self.gl.clear_depth(1.);
+        self.gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
     }
 }
 
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
     set_panic_hook();
-    let client = GlClient::new(RenderObject::Box2D(None));
-    client.render();
-    // client.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    // client.gl.
     Ok(())
 }
