@@ -22,9 +22,9 @@ pub struct Box2D {
     uniform_locations: UniformLocations,
     aspect: f32,
     field_of_view: f32,
-    pub trans_x: f32,
-    pub trans_y: f32,
-    pub trans_z: f32,
+    trans_x: f32,
+    trans_y: f32,
+    trans_z: f32,
 }
 
 impl Box2D {
@@ -123,10 +123,37 @@ impl Box2D {
         gl.draw_arrays(GL::TRIANGLE_STRIP, offset, vertex_count);
     }
 
-    pub fn flied_of_view(&mut self, degrees: f32) {
+    pub fn set_flied_of_view(&mut self, degrees: f32) {
         self.field_of_view = (degrees * PI / 180.) as f32;
     }
-    pub fn aspect(&mut self, width: f32, height: f32) {
+
+    pub fn set_aspect(&mut self, width: f32, height: f32) {
         self.aspect = width / height as f32;
     }
+
+    pub fn set_trans_x(&mut self, new_x: f32) {
+        self.trans_x = new_x
+    }
+
+    pub fn set_trans_y(&mut self, new_y: f32) {
+        self.trans_y = new_y
+    }
+
+    pub fn set_trans_z(&mut self, new_z: f32) {
+        self.trans_z = new_z
+    }
+
+    pub fn get_trans_x(&self) -> f32 {
+        self.trans_x
+    }
+
+    pub fn get_trans_y(&self) -> f32 {
+        self.trans_y
+    }
+
+    pub fn get_trans_z(&self) -> f32 {
+        self.trans_z
+    }
+
+
 }

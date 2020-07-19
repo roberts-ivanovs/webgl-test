@@ -4,14 +4,16 @@
 // mod utils;
 // mod client;
 
-use crate::RenderableOption;
-use crate::RenderObject;
-use std::fmt::{Debug};
 use crate::programs::box_2d::Box2D;
 use crate::programs::cube::Cube;
 use crate::shaders::fragment::F_SHADER;
 use crate::shaders::vertex::V_SHADER;
-use crate::{gl_setup, utils::{console_log, link_program}};
+use crate::RenderObject;
+use crate::RenderableOption;
+use crate::{
+    gl_setup,
+    utils::{console_log, link_program},
+};
 use wasm_bindgen::prelude::*;
 use web_sys::{WebGlProgram, WebGlRenderingContext as GL};
 
@@ -80,5 +82,25 @@ impl GlClient {
         self.gl.clear_color(0., 0., 0., 1.);
         self.gl.clear_depth(1.);
         self.gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
+    }
+
+    pub fn transform_xyz(&mut self, x: f32, y: f32, z: f32) {
+        match &mut self.object {
+            Some(renderable) => match renderable {
+                RenderObject::Cube(_) => {
+                    // TODO Implement cube transformation
+                    console_log("Transforming Cube");
+                }
+                RenderObject::Box2D(obj) => {
+                    console_log(&format!("Transforming Box2D {} {} {}", x, y, z));
+                    obj.set_trans_x(x);
+                    obj.set_trans_y(y);
+                    obj.set_trans_z(z);
+                }
+            },
+            None => {
+                console_log("doing Nothing");
+            }
+        }
     }
 }

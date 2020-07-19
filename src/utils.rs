@@ -4,6 +4,7 @@ use web_sys::{console, WebGlRenderingContext as GL};
 
 pub fn console_log(to_log: &str) {
     let array = js_sys::Array::new();
+    array.push(&"WASM:".into());
     array.push(&to_log.into());
     unsafe {
         console::log(&array);
