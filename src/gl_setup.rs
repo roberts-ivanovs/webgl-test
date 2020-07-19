@@ -5,23 +5,23 @@ use web_sys::{HtmlCanvasElement, Document, WebGlRenderingContext as GL};
 use crate::utils::console_log;
 
 
-fn wait_until_canvas_is_rendered(document: Document) -> Result<HtmlCanvasElement, Element> {
-    let canvas: Option<Element> = document.get_element_by_id("canvasRust");
+fn wait_until_canvas_is_rendered(document: Document, canvas_id: &str) -> Result<HtmlCanvasElement, Element> {
+    let canvas: Option<Element> = document.get_element_by_id(canvas_id);
     match canvas {
         Some(elem) => {
             elem.dyn_into::<web_sys::HtmlCanvasElement>()
         }
         None => {
-            return wait_until_canvas_is_rendered(document);
+            return wait_until_canvas_is_rendered(document, canvas_id);
         }
     }
 }
 
-pub fn initialize_webgl_context() -> Result<WebGlRenderingContext, JsValue> {
+pub fn initialize_webgl_context(canvas_id: &str) -> Result<WebGlRenderingContext, JsValue> {
     console_log("Inicializing webgl");
     let window = window().unwrap();
     let document = window.document().unwrap();
-    let canvas: HtmlCanvasElement = wait_until_canvas_is_rendered(document)?;
+    let canvas: HtmlCanvasElement = wait_until_canvas_is_rendered(document, canvas_id)?;
     let gl: WebGlRenderingContext = canvas.get_context("webgl")?.unwrap().dyn_into()?;
 
     gl.clear_color(0.0, 0.0, 0.0, 1.0); //RGBA

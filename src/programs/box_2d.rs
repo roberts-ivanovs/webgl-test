@@ -1,10 +1,10 @@
-use core::f32::consts::PI;
 use nalgebra_glm as glm;
 
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::WebGlUniformLocation;
+use crate::{Transform, CanvasData};
 
 pub struct AttributeLocations {
     pub vertex_position: i32,
@@ -20,15 +20,12 @@ pub struct Box2D {
     program: WebGlProgram,
     attribute_locations: AttributeLocations,
     uniform_locations: UniformLocations,
-    aspect: f32,
-    field_of_view: f32,
-    trans_x: f32,
-    trans_y: f32,
-    trans_z: f32,
+    pub canvas: CanvasData,
+    pub transform: Transform,
 }
 
 impl Box2D {
-    pub fn new(gl: &GL, program: WebGlProgram) -> Self {
+    pub fn new(gl: &GL, program: WebGlProgram, canvas: CanvasData, transform: Transform) -> Self {
         // program.
         let attribute_locations = AttributeLocations {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
@@ -49,11 +46,8 @@ impl Box2D {
             attribute_locations,
             uniform_locations,
             program,
-            field_of_view: (45. * PI / 180.) as f32,
-            aspect: 4. / 3. as f32,
-            trans_x: 0.,
-            trans_y: 0.,
-            trans_z: -6.,
+            canvas,
+            transform,
         }
     }
 
@@ -80,12 +74,12 @@ impl Box2D {
         let z_near: f32 = 0.1;
         let z_far: f32 = 100.0;
 
-        let projection_matrix = glm::perspective(self.aspect, self.field_of_view, z_near, z_far);
+        let projection_matrix = glm::perspective(self.canvas.aspect, self.canvas.field_of_view, z_near, z_far);
         let mut empty_matrix = glm::mat4x4(
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );
         empty_matrix.fill_with_identity();
-        let translation_vector = glm::vec3(self.trans_x, self.trans_y, self.trans_z);
+        let translation_vector = glm::vec3(self.transform.trans_x, self.transform.trans_y, self.transform.trans_z);
         let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
 
         let number_components = 2;
@@ -122,38 +116,5 @@ impl Box2D {
         let vertex_count = 4;
         gl.draw_arrays(GL::TRIANGLE_STRIP, offset, vertex_count);
     }
-
-    pub fn set_flied_of_view(&mut self, degrees: f32) {
-        self.field_of_view = (degrees * PI / 180.) as f32;
-    }
-
-    pub fn set_aspect(&mut self, width: f32, height: f32) {
-        self.aspect = width / height as f32;
-    }
-
-    pub fn set_trans_x(&mut self, new_x: f32) {
-        self.trans_x = new_x
-    }
-
-    pub fn set_trans_y(&mut self, new_y: f32) {
-        self.trans_y = new_y
-    }
-
-    pub fn set_trans_z(&mut self, new_z: f32) {
-        self.trans_z = new_z
-    }
-
-    pub fn get_trans_x(&self) -> f32 {
-        self.trans_x
-    }
-
-    pub fn get_trans_y(&self) -> f32 {
-        self.trans_y
-    }
-
-    pub fn get_trans_z(&self) -> f32 {
-        self.trans_z
-    }
-
 
 }
