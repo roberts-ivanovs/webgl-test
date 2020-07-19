@@ -1,4 +1,3 @@
-use core::fmt::Debug;
 use core::f32::consts::PI;
 use nalgebra_glm as glm;
 
@@ -27,15 +26,6 @@ pub struct Box2D {
     pub trans_y: f32,
     pub trans_z: f32,
 }
-
-
-// impl Debug for Box2D {
-//     fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-
-
-//     }
-
-// }
 
 impl Box2D {
     pub fn new(gl: &GL, program: WebGlProgram) -> Self {

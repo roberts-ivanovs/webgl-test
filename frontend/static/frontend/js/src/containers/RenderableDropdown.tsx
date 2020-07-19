@@ -21,6 +21,9 @@ export default function RenderableDropdown({ wasm }: Props): ReactElement {
     }
   }, [options, client]);
 
+  /**
+   * Perform the render call once a parameter has changed
+   */
   useEffect(() => {
     if (client !== undefined) {
       client.render();
@@ -29,13 +32,12 @@ export default function RenderableDropdown({ wasm }: Props): ReactElement {
 
   return client && options !== undefined ? (
     <select
+      className="custom-select custom-select-lg mb-3"
       value={Object.keys(wasm.RenderableOption)[options]}
       name="renderable"
       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
         const val =
           wasm.RenderableOption[(e.target.value as unknown) as number];
-        console.log('Selected val 2', val, Number(val));
-
         setOption(Number(val));
       }}
     >
