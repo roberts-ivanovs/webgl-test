@@ -42,11 +42,6 @@ export default function RenderableDropdown({
     [client === undefined],
   );
 
-  console.log('requestRef', requestRef);
-  console.log('previousTimeRef', previousTimeRef);
-  console.log('client', client);
-
-
   useEffect(() => {
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current!);
