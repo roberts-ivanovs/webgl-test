@@ -8,6 +8,8 @@ import WasmLoader from './containers/WasmLoader';
 const rust = import('wasm-app');
 
 rust.then((m) => {
+  // const rust_mem = import('wasm-app/index_bg').then(mem => {
+  // });
   ReactDOM.render(<WasmLoader wasm={m} />, document.getElementById('root'));
 }).catch((e) => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

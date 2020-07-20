@@ -1,9 +1,16 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement, useState, useEffect, useCallback } from 'react';
 import { GlClient, RenderableOption, CanvasData, Transform } from 'wasm-app';
 
 interface Props {
   wasm: typeof import('wasm-app');
   canvas: CanvasData;
+}
+
+const FPS_THROTTLE = 1000 / 60; // 60fps
+
+
+interface Current {
+  current: number
 }
 
 export default function RenderableDropdown({
@@ -16,13 +23,43 @@ export default function RenderableDropdown({
   const [y, setY] = useState(0);
   const [z, setZ] = useState(-6);
 
+  // Use useRef for mutable variables that we want to persist
+  // without triggering a re-render on their change
+  const requestRef = React.useRef<number>();
+  const previousTimeRef = React.useRef<number>();
+
+  const animate = useCallback(
+    (time: number) => {
+      if (
+        previousTimeRef.current != undefined &&
+        time - previousTimeRef.current > FPS_THROTTLE
+      ) {
+        client?.render();
+      }
+      previousTimeRef.current = time;
+      requestRef.current = requestAnimationFrame(animate);
+    },
+    [client === undefined],
+  );
+
+  console.log('requestRef', requestRef);
+  console.log('previousTimeRef', previousTimeRef);
+  console.log('client', client);
+
+
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef.current!);
+  }, [client === undefined]); // Make sure the effect runs only once
+
   useEffect(() => {
     if (options === undefined) {
       setOption(+wasm.RenderableOption.Cube);
     } else {
       const defTransform = new wasm.Transform(0, 0, -6);
       if (client === undefined) {
-        setClient(new wasm.GlClient(+options, canvas, defTransform));
+        const tmpClient = new wasm.GlClient(+options, canvas, defTransform);
+        setClient(tmpClient);
       } else {
         client.set_renderable(+options, canvas, defTransform);
       }
@@ -31,24 +68,13 @@ export default function RenderableDropdown({
 
   useEffect(() => {
     if (client !== undefined) {
-      const currentTransform = client.get_transform()!;
+      const currentTransform: Transform = client.get_transform()!;
       currentTransform.set_trans_x(x);
       currentTransform.set_trans_y(y);
       currentTransform.set_trans_z(z);
       client.set_transform(currentTransform);
     }
-  }, [
-    x, y, z
-  ]);
-
-  /**
-   * Perform the render call once a parameter has changed
-   */
-  useEffect(() => {
-    if (client !== undefined) {
-      client.render();
-    }
-  }, [options, client !== undefined, client?.get_transform()]);
+  }, [x, y, z]);
 
   return client !== undefined && options !== undefined ? (
     <div>

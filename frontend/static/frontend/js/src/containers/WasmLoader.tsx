@@ -2,15 +2,9 @@ import React, { ReactElement, useState, useEffect } from 'react';
 import RenderableDropdown from './RenderableDropdown';
 import { CanvasData } from "wasm-app";
 
-// async function loadWasm(
-//   cb: React.Dispatch<React.SetStateAction<Wasm | undefined>>,
-// ): Promise<void> {
-//   const wasm = await import('wasm-app');
-//   cb(wasm);
-// }
-
 interface Props {
   wasm: typeof import('wasm-app');
+  // memory: WebAssembly.Memory,
 }
 
 export default function WasmLoader({ wasm }: Props): ReactElement {
@@ -31,7 +25,12 @@ export default function WasmLoader({ wasm }: Props): ReactElement {
           <canvas id={canvasId} height={height} width={width} />
         </div>
         <div className="col">
-          {wasm && canvas && <RenderableDropdown wasm={wasm} canvas={canvas} />}
+          {wasm && canvas && (
+            <RenderableDropdown
+              wasm={wasm}
+              canvas={canvas}
+            />
+          )}
         </div>
       </div>
     </div>
