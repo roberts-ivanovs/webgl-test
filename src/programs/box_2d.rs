@@ -4,7 +4,7 @@ use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::WebGlUniformLocation;
-use crate::{Transform, CanvasData};
+use crate::{Transform, canvas::CanvasData};
 
 pub struct AttributeLocations {
     pub vertex_position: i32,
@@ -74,7 +74,7 @@ impl Box2D {
         let z_near: f32 = 0.1;
         let z_far: f32 = 100.0;
 
-        let projection_matrix = glm::perspective(self.canvas.aspect, self.canvas.field_of_view, z_near, z_far);
+        let projection_matrix = glm::perspective(self.canvas.get_aspect(), self.canvas.get_fov(), z_near, z_far);
         let mut empty_matrix = glm::mat4x4(
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );

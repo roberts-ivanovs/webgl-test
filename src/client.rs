@@ -4,6 +4,7 @@
 // mod utils;
 // mod client;
 
+use crate::canvas::CanvasData;
 use crate::Transform;
 use crate::programs::box_2d::Box2D;
 use crate::programs::cube::Cube;
@@ -13,7 +14,7 @@ use crate::RenderObject;
 use crate::RenderableOption;
 use crate::{
     gl_setup,
-    utils::{console_log, link_program}, CanvasData,
+    utils::{console_log, link_program},
 };
 use wasm_bindgen::prelude::*;
 use web_sys::{WebGlProgram, WebGlRenderingContext as GL};
@@ -29,7 +30,7 @@ pub struct GlClient {
 impl GlClient {
     #[wasm_bindgen(constructor)]
     pub fn new(opt: RenderableOption, canvas: &CanvasData, transform: &Transform) -> Self {
-        let gl: GL = gl_setup::initialize_webgl_context(&canvas.canvas_id).unwrap();
+        let gl: GL = gl_setup::initialize_webgl_context(&canvas.get_canvas()).unwrap();
         let mut client: GlClient = GlClient {
             gl,
             object: None,
