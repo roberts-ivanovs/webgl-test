@@ -5,7 +5,7 @@
 // mod client;
 
 use crate::canvas::CanvasData;
-use crate::Transform;
+use crate::transform::Transform;
 use crate::programs::box_2d::Box2D;
 use crate::programs::cube::Cube;
 use crate::shaders::fragment::F_SHADER;

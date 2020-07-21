@@ -4,7 +4,8 @@ use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::WebGlUniformLocation;
-use crate::{Transform, canvas::CanvasData};
+use crate::transform::Transform;
+use crate::canvas::CanvasData;
 
 pub struct AttributeLocations {
     pub vertex_position: i32,
@@ -79,7 +80,7 @@ impl Box2D {
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );
         empty_matrix.fill_with_identity();
-        let translation_vector = glm::vec3(self.transform.trans_x, self.transform.trans_y, self.transform.trans_z);
+        let translation_vector = glm::vec3(self.transform.get_trans_x(), self.transform.get_trans_y(), self.transform.get_trans_z());
         let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
 
         let number_components = 2;
