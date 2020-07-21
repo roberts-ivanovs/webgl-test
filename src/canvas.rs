@@ -1,12 +1,14 @@
 use core::f32::consts::PI;
 use wasm_bindgen::prelude::*;
-
+use web_sys::{HtmlCanvasElement};
+use crate::gl_setup::get_canvas;
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct CanvasData {
-    aspect: f32,
-    field_of_view: f32,
+    pub width: f32,
+    pub height: f32,
+    pub fov_degrees: f32,
     canvas_id: String,
 }
 
@@ -15,8 +17,9 @@ impl CanvasData {
     #[wasm_bindgen(constructor)]
     pub fn new(width: f32, height: f32, degrees: f32, canvas_id: String) -> Self {
         Self {
-            aspect: CanvasData::calculate_aspect(width, height),
-            field_of_view: CanvasData::calculate_fov(degrees),
+            width,
+            height,
+            fov_degrees: degrees,
             canvas_id,
         }
     }
@@ -31,12 +34,13 @@ impl CanvasData {
 
     #[wasm_bindgen]
     pub fn set_fov(&mut self, degrees: f32) {
-        self.field_of_view = CanvasData::calculate_fov(degrees);
+        self.fov_degrees = degrees;
     }
 
     #[wasm_bindgen]
-    pub fn set_aspect(&mut self, width: f32, height: f32) {
-        self.aspect = CanvasData::calculate_aspect(width, height);
+    pub fn set_dimensions(&mut self, width: f32, height: f32) {
+        self.width = width;
+        self.height = height;
     }
 
     pub fn get_canvas(&self) -> String {
@@ -44,10 +48,10 @@ impl CanvasData {
     }
 
     pub fn get_aspect(&self) -> f32 {
-        self.aspect
+        CanvasData::calculate_aspect(self.width, self.height)
     }
 
     pub fn get_fov(&self) -> f32 {
-        self.field_of_view
+        CanvasData::calculate_fov(self.fov_degrees)
     }
 }

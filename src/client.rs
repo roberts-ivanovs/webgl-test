@@ -1,9 +1,3 @@
-// mod gl_setup;
-// mod programs;
-// mod shaders;
-// mod utils;
-// mod client;
-
 use crate::canvas::CanvasData;
 use crate::transform::Transform;
 use crate::programs::box_2d::Box2D;
@@ -17,24 +11,28 @@ use crate::{
     utils::{console_log, link_program},
 };
 use wasm_bindgen::prelude::*;
-use web_sys::{WebGlProgram, WebGlRenderingContext as GL};
+use web_sys::{WebGlProgram, WebGlRenderingContext as GL, HtmlCanvasElement};
+use gl_setup::initialize_webgl_context;
 
 #[wasm_bindgen]
 pub struct GlClient {
     gl: GL,
-    object: Option<RenderObject>, // program_cube: programs::cube::Cube,
+    object: Option<RenderObject>,
     pub is_ready: bool,
+    master_canvas: HtmlCanvasElement
 }
 
 #[wasm_bindgen]
 impl GlClient {
     #[wasm_bindgen(constructor)]
     pub fn new(opt: RenderableOption, canvas: &CanvasData, transform: &Transform) -> Self {
-        let gl: GL = gl_setup::initialize_webgl_context(&canvas.get_canvas()).unwrap();
+        let canvas_el: HtmlCanvasElement = gl_setup::get_canvas(&canvas.get_canvas());
+        let gl: GL = gl_setup::initialize_webgl_context(&canvas_el).unwrap();
         let mut client: GlClient = GlClient {
             gl,
             object: None,
             is_ready: false,
+            master_canvas: canvas_el,
         };
         client.set_renderable(opt, canvas, transform);
         client

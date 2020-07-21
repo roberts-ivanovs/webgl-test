@@ -5,6 +5,7 @@ mod shaders;
 mod utils;
 mod canvas;
 mod transform;
+mod input;
 
 use crate::programs::box_2d::Box2D;
 use crate::programs::cube::Cube;
