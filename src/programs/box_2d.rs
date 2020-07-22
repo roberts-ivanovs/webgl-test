@@ -1,11 +1,13 @@
+use crate::input::UserInput;
 use nalgebra_glm as glm;
 
+use crate::canvas::CanvasData;
+use crate::transform::Transform;
+use crate::RenderObjectTrait;
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::WebGlUniformLocation;
-use crate::transform::Transform;
-use crate::canvas::CanvasData;
 
 pub struct AttributeLocations {
     pub vertex_position: i32,
@@ -23,11 +25,27 @@ pub struct Box2D {
     uniform_locations: UniformLocations,
     pub canvas: CanvasData,
     pub transform: Transform,
+    pub input: UserInput,
 }
 
 impl Box2D {
-    pub fn new(gl: &GL, program: WebGlProgram, canvas: CanvasData, transform: Transform) -> Self {
-        // program.
+
+    fn init_buffers(gl: &GL) -> WebGlBuffer {
+        let position_buffer = gl.create_buffer().unwrap();
+        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
+        let positions = [-1., 1., 1., 1., -1., -1., 1., -1.];
+
+        unsafe {
+            let vert_array = js_sys::Float32Array::view(&positions);
+
+            gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
+        }
+        position_buffer
+    }
+}
+
+impl RenderObjectTrait for Box2D {
+    fn new(gl: &GL, program: WebGlProgram, canvas: CanvasData, transform: Transform) -> Box2D {
         let attribute_locations = AttributeLocations {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
         };
@@ -42,30 +60,20 @@ impl Box2D {
 
         let buffer = Box2D::init_buffers(&gl);
 
-        Self {
+        let input = UserInput::new();
+
+        Box2D {
             buffer,
             attribute_locations,
             uniform_locations,
             program,
             canvas,
             transform,
+            input,
         }
     }
 
-    fn init_buffers(gl: &GL) -> WebGlBuffer {
-        let position_buffer = gl.create_buffer().unwrap();
-        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
-        let positions = [-1., 1., 1., 1., -1., -1., 1., -1.];
-
-        unsafe {
-            let vert_array = js_sys::Float32Array::view(&positions);
-
-            gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
-        }
-        position_buffer
-    }
-
-    pub fn draw_scene(&self, gl: &GL) {
+    fn draw_scene(&self, gl: &GL) {
         gl.clear_color(0., 0., 0., 1.);
         gl.clear_depth(1.);
         gl.enable(GL::DEPTH_TEST);
@@ -75,12 +83,21 @@ impl Box2D {
         let z_near: f32 = 0.1;
         let z_far: f32 = 100.0;
 
-        let projection_matrix = glm::perspective(self.canvas.get_aspect(), self.canvas.get_fov(), z_near, z_far);
+        let projection_matrix = glm::perspective(
+            self.canvas.get_aspect(),
+            self.canvas.get_fov(),
+            z_near,
+            z_far,
+        );
         let mut empty_matrix = glm::mat4x4(
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );
         empty_matrix.fill_with_identity();
-        let translation_vector = glm::vec3(self.transform.get_trans_x(), self.transform.get_trans_y(), self.transform.get_trans_z());
+        let translation_vector = glm::vec3(
+            self.transform.get_trans_x(),
+            self.transform.get_trans_y(),
+            self.transform.get_trans_z(),
+        );
         let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
 
         let number_components = 2;
@@ -118,4 +135,22 @@ impl Box2D {
         gl.draw_arrays(GL::TRIANGLE_STRIP, offset, vertex_count);
     }
 
+    fn canvas(&self) -> &CanvasData {
+        &self.canvas
+    }
+    fn input(&self) -> &UserInput {
+        &self.input
+    }
+    fn transform(&self) -> &Transform {
+        &self.transform
+    }
+    fn set_canvas(&mut self, canvas: CanvasData) {
+        self.canvas = canvas;
+    }
+    fn set_transform(&mut self, transform: Transform) {
+        self.transform = transform;
+    }
+    fn set_input(&mut self, input: UserInput) {
+        self.input = input;
+    }
 }

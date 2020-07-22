@@ -1,23 +1,21 @@
+use wasm_bindgen::JsValue;
+use wasm_bindgen::prelude::*;
 use crate::canvas::CanvasData;
 use crate::transform::Transform;
 use crate::programs::box_2d::Box2D;
-use crate::programs::cube::Cube;
 use crate::shaders::fragment::F_SHADER;
 use crate::shaders::vertex::V_SHADER;
-use crate::RenderObject;
 use crate::RenderableOption;
 use crate::{
     gl_setup,
-    utils::{console_log, link_program},
+    utils::{console_log, link_program}, RenderObjectTrait,
 };
-use wasm_bindgen::prelude::*;
 use web_sys::{WebGlProgram, WebGlRenderingContext as GL, HtmlCanvasElement};
-use gl_setup::initialize_webgl_context;
 
 #[wasm_bindgen]
 pub struct GlClient {
     gl: GL,
-    object: Option<RenderObject>,
+    object: Option<Box<dyn RenderObjectTrait>>,
     pub is_ready: bool,
     master_canvas: HtmlCanvasElement
 }
@@ -34,6 +32,9 @@ impl GlClient {
             is_ready: false,
             master_canvas: canvas_el,
         };
+        client.attach_mouse_down_handler(&client.master_canvas);
+        client.attach_mouse_up_handler(&client.master_canvas);
+        client.attach_mouse_move_handler(&client.master_canvas);
         client.set_renderable(opt, canvas, transform);
         client
     }
@@ -41,21 +42,50 @@ impl GlClient {
     #[wasm_bindgen]
     pub fn render(&self) {
         match &self.object {
-            Some(renderable) => match &renderable {
-                RenderObject::Cube(_) => {
-                    // TODO Implement cube rendering
-                    console_log("Clearing the canvas");
-                    self.clear();
-                }
-                RenderObject::Box2D(obj) => {
-                    console_log("Drawing Box2D");
-                    obj.draw_scene(&self.gl);
-                }
-            },
+            Some(obj) => {
+                obj.draw_scene(&self.gl);
+            }
             None => {
-                console_log("doing Nothing");
+                console_log("Clearing the canvas");
+                self.clear();
             }
         }
+    }
+
+    fn attach_mouse_down_handler(&self, canvas: &HtmlCanvasElement) -> Result<(), JsValue> {
+        // let handler = move |event: web_sys::MouseEvent| {
+        //     super::app_state::update_mouse_down(event.client_x() as f32, event.client_y() as f32, true);
+        // };
+
+        // let handler = Closure::wrap(Box::new(handler) as Box<dyn FnMut(_)>);
+        // canvas.add_event_listener_with_callback("mousedown", handler.as_ref().unchecked_ref())?;
+        // handler.forget();
+
+        Ok(())
+    }
+
+    fn attach_mouse_up_handler(&self, canvas: &HtmlCanvasElement) -> Result<(), JsValue> {
+        // let handler = move |event: web_sys::MouseEvent| {
+        //     super::app_state::update_mouse_down(event.client_x() as f32, event.client_y() as f32, false);
+        // };
+
+        // let handler = Closure::wrap(Box::new(handler) as Box<dyn FnMut(_)>);
+        // canvas.add_event_listener_with_callback("mouseup", handler.as_ref().unchecked_ref())?;
+        // handler.forget();
+
+        Ok(())
+    }
+
+    fn attach_mouse_move_handler(&self, canvas: &HtmlCanvasElement) -> Result<(), JsValue> {
+        // let handler = move |event: web_sys::MouseEvent| {
+        //     super::app_state::update_mouse_position(event.client_x() as f32, event.client_y() as f32);
+        // };
+
+        // let handler = Closure::wrap(Box::new(handler) as Box<dyn FnMut(_)>);
+        // canvas.add_event_listener_with_callback("mousemove", handler.as_ref().unchecked_ref())?;
+        // handler.forget();
+
+        Ok(())
     }
 
     #[wasm_bindgen]
@@ -67,11 +97,12 @@ impl GlClient {
 
         match opt {
             RenderableOption::Cube => {
-                let object = RenderObject::Cube(Cube::new(1.));
-                self.object = Some(object);
+                // let object = RenderObject::Cube(Cube::new(1.));
+                // TODO implement cube rendering
+                self.object = None;
             }
             RenderableOption::Box2D => {
-                let object = RenderObject::Box2D(Box2D::new(&self.gl, program, canvas.clone(), transform.clone()));
+                let object: Box<Box2D> = Box::new(RenderObjectTrait::new(&self.gl, program, canvas.clone(), transform.clone()));
                 self.object = Some(object);
             }
         }
@@ -87,34 +118,19 @@ impl GlClient {
     #[wasm_bindgen]
     pub fn get_transform(&self) -> Option<Transform> {
         match &self.object {
-            Some(renderable) => match &renderable {
-                RenderObject::Cube(_) => {
-                    // TODO implement cube transform
-                    None
-                }
-                RenderObject::Box2D(obj) => {
-                    Some(obj.transform)
-                }
-            },
-            None => {
-                None
+            Some(obj) => {
+                Some(obj.transform().clone())
             }
+            None => {None}
         }
     }
 
     #[wasm_bindgen]
     pub fn set_transform(&mut self, new_transform: &Transform) {
         match &mut self.object {
-            Some(renderable) => match renderable {
-                RenderObject::Cube(_) => {
-                    // TODO Implement cube transformation
-                    console_log("Transforming Cube");
-                }
-                RenderObject::Box2D(obj) => {
-                    console_log(&format!("Transforming Box2D {:?}", new_transform));
-                    obj.transform = new_transform.clone();
-                }
-            },
+            Some(obj) => {
+                obj.set_transform(new_transform.clone());
+            }
             None => {
                 console_log("doing Nothing");
             }

@@ -1,24 +1,22 @@
 use crate::canvas::CanvasData;
 use core::f32::consts::PI;
 
-pub struct UserInput<'a> {
+pub struct UserInput {
     mouse_down: bool,
     mouse_x: f32,
     mouse_y: f32,
     rotation_x_axis: f32,
     rotation_y_axis: f32,
-    cd: &'a CanvasData,
 }
 
-impl<'a> UserInput<'a> {
-    pub fn new(cd: &'a CanvasData) -> Self {
+impl UserInput {
+    pub fn new() -> Self {
         Self {
             mouse_down: false,
             mouse_x: 0.,
             mouse_y: 0.,
             rotation_x_axis: 0.,
             rotation_y_axis: 0.,
-            cd,
         }
     }
 
@@ -28,17 +26,17 @@ impl<'a> UserInput<'a> {
         self.mouse_down = is_down;
     }
 
-    pub fn update_mouse_position(&mut self, x: f32, y: f32) {
-        let inverted_y = self.cd.height - y;
+    pub fn update_mouse_position(&mut self, x: f32, y: f32, cd: &CanvasData) {
+        let inverted_y = cd.height - y;
         let x_delta = x - self.mouse_x;
         let y_delta = inverted_y - self.mouse_y;
         let rotation_x_delta = if self.mouse_down {
-            PI * y_delta / self.cd.height
+            PI * y_delta / cd.height
         } else {
             0.
         };
         let rotation_y_delta = if self.mouse_down {
-            PI * x_delta / self.cd.width
+            PI * x_delta / cd.width
         } else {
             0.
         };

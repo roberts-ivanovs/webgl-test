@@ -1,7 +1,5 @@
 use core::f32::consts::PI;
 use wasm_bindgen::prelude::*;
-use web_sys::{HtmlCanvasElement};
-use crate::gl_setup::get_canvas;
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]

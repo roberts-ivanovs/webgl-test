@@ -2,8 +2,6 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
 use web_sys::*;
 use web_sys::{HtmlCanvasElement, Document, WebGlRenderingContext as GL};
-use crate::utils::console_log;
-
 
 fn wait_until_canvas_is_rendered(document: Document, canvas_id: &str) -> Result<HtmlCanvasElement, Element> {
     let canvas: Option<Element> = document.get_element_by_id(canvas_id);
