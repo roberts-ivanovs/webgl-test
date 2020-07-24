@@ -23,7 +23,6 @@ pub struct Box2D {
     program: WebGlProgram,
     attribute_locations: AttributeLocations,
     uniform_locations: UniformLocations,
-    pub canvas: CanvasData,
     pub transform: Transform,
     pub input: UserInput,
 }
@@ -45,7 +44,7 @@ impl Box2D {
 }
 
 impl RenderObjectTrait for Box2D {
-    fn new(gl: &GL, program: WebGlProgram, canvas: CanvasData, transform: Transform) -> Box2D {
+    fn new(gl: &GL, program: WebGlProgram, transform: Transform) -> Box2D {
         let attribute_locations = AttributeLocations {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
         };
@@ -67,13 +66,12 @@ impl RenderObjectTrait for Box2D {
             attribute_locations,
             uniform_locations,
             program,
-            canvas,
             transform,
             input,
         }
     }
 
-    fn draw_scene(&self, gl: &GL) {
+    fn draw_scene(&self, gl: &GL, canvas: &CanvasData) {
         gl.clear_color(0., 0., 0., 1.);
         gl.clear_depth(1.);
         gl.enable(GL::DEPTH_TEST);
@@ -84,8 +82,8 @@ impl RenderObjectTrait for Box2D {
         let z_far: f32 = 100.0;
 
         let projection_matrix = glm::perspective(
-            self.canvas.get_aspect(),
-            self.canvas.get_fov(),
+            canvas.get_aspect(),
+            canvas.get_fov(),
             z_near,
             z_far,
         );
@@ -94,8 +92,10 @@ impl RenderObjectTrait for Box2D {
         );
         empty_matrix.fill_with_identity();
         let translation_vector = glm::vec3(
-            self.transform.get_trans_x(),
-            self.transform.get_trans_y(),
+            self.input.mouse_x_centered / 100.,
+            self.input.mouse_y_centered / 100.,
+            // self.transform.get_trans_x(),
+            // self.transform.get_trans_y(),
             self.transform.get_trans_z(),
         );
         let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
@@ -135,17 +135,11 @@ impl RenderObjectTrait for Box2D {
         gl.draw_arrays(GL::TRIANGLE_STRIP, offset, vertex_count);
     }
 
-    fn canvas(&mut self) -> &mut CanvasData {
-        &mut self.canvas
-    }
     fn input(&mut self) -> &mut UserInput {
         &mut self.input
     }
-    fn transform(&mut self) -> &mut Transform {
-        &mut self.transform
-    }
-    fn set_canvas(&mut self, canvas: CanvasData) {
-        self.canvas = canvas;
+    fn transform(&self) -> &Transform {
+        &self.transform
     }
     fn set_transform(&mut self, transform: Transform) {
         self.transform = transform;

@@ -1,12 +1,17 @@
+use web_sys::HtmlCanvasElement;
 use crate::canvas::CanvasData;
+use crate::utils::console_log;
 use core::f32::consts::PI;
 
+#[derive(Clone, Copy)]
 pub struct UserInput {
-    mouse_down: bool,
-    mouse_x: f32,
-    mouse_y: f32,
-    rotation_x_axis: f32,
-    rotation_y_axis: f32,
+    pub mouse_down: bool,
+    pub mouse_x: f32,
+    pub mouse_y: f32,
+    pub mouse_x_centered: f32,
+    pub mouse_y_centered: f32,
+    pub rotation_x_axis: f32,
+    pub rotation_y_axis: f32,
 }
 
 impl UserInput {
@@ -17,6 +22,8 @@ impl UserInput {
             mouse_y: 0.,
             rotation_x_axis: 0.,
             rotation_y_axis: 0.,
+            mouse_x_centered: 0.,
+            mouse_y_centered: 0.,
         }
     }
 
@@ -27,6 +34,7 @@ impl UserInput {
     }
 
     pub fn update_mouse_position(&mut self, x: f32, y: f32, cd: &CanvasData) {
+        // cd.width
         let inverted_y = cd.height - y;
         let x_delta = x - self.mouse_x;
         let y_delta = inverted_y - self.mouse_y;
@@ -41,6 +49,9 @@ impl UserInput {
             0.
         };
 
+        self.mouse_x_centered = - ((cd.width / 2.) - x);
+        self.mouse_y_centered = (cd.height / 2.) - y;
+        console_log(&format!("rendering {} {}", self.mouse_x_centered, self.mouse_y_centered));
         self.mouse_x = x;
         self.mouse_y = y;
         self.rotation_x_axis = self.rotation_x_axis + rotation_x_delta;
