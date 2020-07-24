@@ -32,9 +32,6 @@ impl GlClient {
             is_ready: false,
             master_canvas: canvas_el,
         };
-        client.attach_mouse_down_handler(&client.master_canvas);
-        client.attach_mouse_up_handler(&client.master_canvas);
-        client.attach_mouse_move_handler(&client.master_canvas);
         client.set_renderable(opt, canvas, transform);
         client
     }
@@ -50,42 +47,6 @@ impl GlClient {
                 self.clear();
             }
         }
-    }
-
-    fn attach_mouse_down_handler(&self, canvas: &HtmlCanvasElement) -> Result<(), JsValue> {
-        // let handler = move |event: web_sys::MouseEvent| {
-        //     super::app_state::update_mouse_down(event.client_x() as f32, event.client_y() as f32, true);
-        // };
-
-        // let handler = Closure::wrap(Box::new(handler) as Box<dyn FnMut(_)>);
-        // canvas.add_event_listener_with_callback("mousedown", handler.as_ref().unchecked_ref())?;
-        // handler.forget();
-
-        Ok(())
-    }
-
-    fn attach_mouse_up_handler(&self, canvas: &HtmlCanvasElement) -> Result<(), JsValue> {
-        // let handler = move |event: web_sys::MouseEvent| {
-        //     super::app_state::update_mouse_down(event.client_x() as f32, event.client_y() as f32, false);
-        // };
-
-        // let handler = Closure::wrap(Box::new(handler) as Box<dyn FnMut(_)>);
-        // canvas.add_event_listener_with_callback("mouseup", handler.as_ref().unchecked_ref())?;
-        // handler.forget();
-
-        Ok(())
-    }
-
-    fn attach_mouse_move_handler(&self, canvas: &HtmlCanvasElement) -> Result<(), JsValue> {
-        // let handler = move |event: web_sys::MouseEvent| {
-        //     super::app_state::update_mouse_position(event.client_x() as f32, event.client_y() as f32);
-        // };
-
-        // let handler = Closure::wrap(Box::new(handler) as Box<dyn FnMut(_)>);
-        // canvas.add_event_listener_with_callback("mousemove", handler.as_ref().unchecked_ref())?;
-        // handler.forget();
-
-        Ok(())
     }
 
     #[wasm_bindgen]
@@ -116,8 +77,8 @@ impl GlClient {
     }
 
     #[wasm_bindgen]
-    pub fn get_transform(&self) -> Option<Transform> {
-        match &self.object {
+    pub fn get_transform(&mut self) -> Option<Transform> {
+        match &mut self.object {
             Some(obj) => {
                 Some(obj.transform().clone())
             }

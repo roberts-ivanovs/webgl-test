@@ -135,14 +135,14 @@ impl RenderObjectTrait for Box2D {
         gl.draw_arrays(GL::TRIANGLE_STRIP, offset, vertex_count);
     }
 
-    fn canvas(&self) -> &CanvasData {
-        &self.canvas
+    fn canvas(&mut self) -> &mut CanvasData {
+        &mut self.canvas
     }
-    fn input(&self) -> &UserInput {
-        &self.input
+    fn input(&mut self) -> &mut UserInput {
+        &mut self.input
     }
-    fn transform(&self) -> &Transform {
-        &self.transform
+    fn transform(&mut self) -> &mut Transform {
+        &mut self.transform
     }
     fn set_canvas(&mut self, canvas: CanvasData) {
         self.canvas = canvas;

@@ -22,11 +22,11 @@ use crate::canvas::CanvasData;
 pub trait RenderObjectTrait {
 
     fn new(gl: &GL, program: WebGlProgram, canvas: CanvasData, transform: Transform) -> Self where Self: Sized;
-    fn canvas(&self) ->  &CanvasData;
+    fn canvas(&mut self) ->  &mut CanvasData;
     fn set_canvas(&mut self, canvas: CanvasData);
-    fn transform(&self) -> &Transform;
+    fn transform(&mut self) -> &mut Transform;
     fn set_transform(&mut self, transform: Transform);
-    fn input(&self) -> &UserInput;
+    fn input(&mut self) -> &mut UserInput;
     fn set_input(&mut self, input: UserInput);
     fn draw_scene(&self, gl: &GL);
 }
