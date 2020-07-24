@@ -1,9 +1,10 @@
 use crate::input::UserInput;
 use nalgebra_glm as glm;
 
+use super::cube::{plane::Plane2D, point::{Point2D}};
 use crate::canvas::CanvasData;
 use crate::transform::Transform;
-use crate::RenderObjectTrait;
+use crate::{utils::console_log, RenderObjectTrait};
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
@@ -25,17 +26,18 @@ pub struct Box2D {
     uniform_locations: UniformLocations,
     pub transform: Transform,
     pub input: UserInput,
+    vertices: Plane2D,
 }
 
 impl Box2D {
-
-    fn init_buffers(gl: &GL) -> WebGlBuffer {
+    fn init_buffers(gl: &GL, vertices: &Vec<f32>) -> WebGlBuffer {
         let position_buffer = gl.create_buffer().unwrap();
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
         let positions = [-1., 1., 1., 1., -1., -1., 1., -1.];
 
         unsafe {
-            let vert_array = js_sys::Float32Array::view(&positions);
+            let vert_array = js_sys::Float32Array::view(&vertices);
+            // let vert_array = js_sys::Float32Array::view(&positions);
 
             gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
         }
@@ -57,11 +59,19 @@ impl RenderObjectTrait for Box2D {
                 .unwrap(),
         };
 
-        let buffer = Box2D::init_buffers(&gl);
 
         let input = UserInput::new();
 
+        let vertices = Plane2D::new(
+            Point2D::new(-1., 1.),
+            Point2D::new(1., 1.),
+            Point2D::new(-1., -1.),
+            Point2D::new(1., -1.),
+        );
+        let buffer = Box2D::init_buffers(&gl, &vertices.points_as_array());
+
         Box2D {
+            vertices,
             buffer,
             attribute_locations,
             uniform_locations,
@@ -81,12 +91,8 @@ impl RenderObjectTrait for Box2D {
         let z_near: f32 = 0.1;
         let z_far: f32 = 100.0;
 
-        let projection_matrix = glm::perspective(
-            canvas.get_aspect(),
-            canvas.get_fov(),
-            z_near,
-            z_far,
-        );
+        let projection_matrix =
+            glm::perspective(canvas.get_aspect(), canvas.get_fov(), z_near, z_far);
         let mut empty_matrix = glm::mat4x4(
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );
@@ -94,8 +100,6 @@ impl RenderObjectTrait for Box2D {
         let translation_vector = glm::vec3(
             self.input.mouse_x_centered / 100.,
             self.input.mouse_y_centered / 100.,
-            // self.transform.get_trans_x(),
-            // self.transform.get_trans_y(),
             self.transform.get_trans_z(),
         );
         let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
