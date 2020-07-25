@@ -1,10 +1,13 @@
 use crate::input::UserInput;
 use nalgebra_glm as glm;
 
-use super::cube::{plane::Plane2D, point::{Point2D}};
+use super::{
+    colors::SingleColor,
+    cube::{plane::Plane2D, point::Point2D},
+};
 use crate::canvas::CanvasData;
 use crate::transform::Transform;
-use crate::{RenderObjectTrait};
+use crate::RenderObjectTrait;
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
@@ -12,6 +15,7 @@ use web_sys::WebGlUniformLocation;
 
 pub struct AttributeLocations {
     pub vertex_position: i32,
+    pub vertex_color: i32,
 }
 
 pub struct UniformLocations {
@@ -20,26 +24,46 @@ pub struct UniformLocations {
 }
 
 pub struct Box2D {
-    buffer: WebGlBuffer,
+    buffer_vertices: WebGlBuffer,
+    buffer_colors: WebGlBuffer,
     program: WebGlProgram,
     attribute_locations: AttributeLocations,
     uniform_locations: UniformLocations,
     pub transform: Transform,
     pub input: UserInput,
     vertices: Plane2D,
+    colors: [SingleColor; 4],
 }
 
 impl Box2D {
-    fn init_buffers(gl: &GL, vertices: &Vec<f32>) -> WebGlBuffer {
+    fn init_buffers(
+        gl: &GL,
+        vertices: &Vec<f32>,
+        colors: &[SingleColor; 4],
+    ) -> (WebGlBuffer, WebGlBuffer) {
         let position_buffer = gl.create_buffer().unwrap();
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
 
         unsafe {
             let vert_array = js_sys::Float32Array::view(&vertices);
-
             gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
         }
-        position_buffer
+
+        let color_buffer = gl.create_buffer().unwrap();
+        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&color_buffer));
+
+        unsafe {
+            let mut returnable: Vec<f32> = vec![];
+
+            colors.iter().for_each(|p| {
+                p.as_array().iter().for_each(|col| {
+                    returnable.push(col.clone());
+                });
+            });
+            let colors_array = js_sys::Float32Array::view(&returnable);
+            gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &colors_array, GL::STATIC_DRAW);
+        }
+        (position_buffer, color_buffer)
     }
 }
 
@@ -47,6 +71,7 @@ impl RenderObjectTrait for Box2D {
     fn new(gl: &GL, program: WebGlProgram, transform: Transform) -> Box2D {
         let attribute_locations = AttributeLocations {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
+            vertex_color: gl.get_attrib_location(&program, "aVertexColor"),
         };
         let uniform_locations = UniformLocations {
             projection_matrix: gl
@@ -57,7 +82,6 @@ impl RenderObjectTrait for Box2D {
                 .unwrap(),
         };
 
-
         let input = UserInput::new();
 
         let vertices = Plane2D::new(
@@ -66,16 +90,24 @@ impl RenderObjectTrait for Box2D {
             Point2D::new(-1., -1.),
             Point2D::new(1., -1.),
         );
-        let buffer = Box2D::init_buffers(&gl, &vertices.points_as_array());
+        let colors: [SingleColor; 4] = [
+            SingleColor::new(1., 0., 0., 1.),
+            SingleColor::new(1., 1., 1., 1.),
+            SingleColor::new(1., 1., 1., 1.),
+            SingleColor::new(1., 1., 1., 1.),
+        ];
+        let buffer = Box2D::init_buffers(&gl, &vertices.points_as_array(), &colors);
 
         Box2D {
             vertices,
-            buffer,
+            buffer_vertices: buffer.0,
+            buffer_colors: buffer.1,
             attribute_locations,
             uniform_locations,
             program,
             transform,
             input,
+            colors,
         }
     }
 
@@ -102,22 +134,48 @@ impl RenderObjectTrait for Box2D {
         );
         let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
 
-        let number_components = 2;
-        let buffer_type = GL::FLOAT;
-        let normalize = false;
-        let stride = 0;
-        let offset = 0;
+        {
+            // Set vertices
+            let number_components = 2;
+            let buffer_type = GL::FLOAT;
+            let normalize = false;
+            let stride = 0;
+            let offset = 0;
 
-        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.buffer));
-        gl.vertex_attrib_pointer_with_i32(
-            self.attribute_locations.vertex_position as u32,
-            number_components,
-            buffer_type,
-            normalize,
-            stride,
-            offset,
-        );
-        gl.enable_vertex_attrib_array(self.attribute_locations.vertex_position as u32);
+            gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.buffer_vertices));
+            gl.vertex_attrib_pointer_with_i32(
+                self.attribute_locations.vertex_position as u32,
+                number_components,
+                buffer_type,
+                normalize,
+                stride,
+                offset,
+            );
+            gl.enable_vertex_attrib_array(self.attribute_locations.vertex_position as u32);
+        }
+
+        {
+            // Set colours
+            let number_components = 4;
+            let buffer_type = GL::FLOAT;
+            let normalize = false;
+            let stride = 0;
+            let offset = 0;
+
+            gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.buffer_colors));
+            gl.vertex_attrib_pointer_with_i32(
+                self.attribute_locations.vertex_color as u32,
+                number_components,
+                buffer_type,
+                normalize,
+                stride,
+                offset
+            );
+            gl.enable_vertex_attrib_array(
+                self.attribute_locations.vertex_color as u32
+            );
+
+        }
 
         gl.use_program(Some(&self.program));
         let transpose = false;
