@@ -1,4 +1,3 @@
-use web_sys::HtmlCanvasElement;
 use crate::canvas::CanvasData;
 use crate::utils::console_log;
 use core::f32::consts::PI;
@@ -51,7 +50,6 @@ impl UserInput {
 
         self.mouse_x_centered = - ((cd.width / 2.) - x);
         self.mouse_y_centered = (cd.height / 2.) - y;
-        console_log(&format!("rendering {} {}", self.mouse_x_centered, self.mouse_y_centered));
         self.mouse_x = x;
         self.mouse_y = y;
         self.rotation_x_axis = self.rotation_x_axis + rotation_x_delta;
