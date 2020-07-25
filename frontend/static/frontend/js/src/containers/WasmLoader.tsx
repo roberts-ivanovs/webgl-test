@@ -8,7 +8,7 @@ interface Props {
 }
 
 
-const FPS_THROTTLE = 1000 / 60; // 60fps
+const FPS_THROTTLE = 1000 / 144; // 60fps
 
 
 export default function WasmLoader({ wasm }: Props): ReactElement {

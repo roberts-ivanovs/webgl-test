@@ -1,6 +1,8 @@
+use crate::utils::console_log;
 use crate::input::UserInput;
 use nalgebra_glm as glm;
-use std::time::{SystemTime, UNIX_EPOCH};
+// use std::time::{SystemTime, UNIX_EPOCH};
+use js_sys::Date;
 
 use super::{
     colors::SingleColor,
@@ -32,9 +34,10 @@ pub struct Box2D {
     uniform_locations: UniformLocations,
     pub transform: Transform,
     pub input: UserInput,
+    last_rotation: f64,
     vertices: Plane2D,
     colors: [SingleColor; 4],
-    square_rotation: f32,
+    square_rotation: f64,
 }
 
 impl Box2D {
@@ -111,6 +114,7 @@ impl RenderObjectTrait for Box2D {
             input,
             colors,
             square_rotation: 0.,
+            last_rotation: Date::now() as f64,
         }
     }
 
@@ -140,10 +144,13 @@ impl RenderObjectTrait for Box2D {
         {
             // Perform rotation
             let rotation_vector = glm::vec3(0., 0., 1.);
-            self.square_rotation += 0.1;
+            let now = Date::now();
+            self.square_rotation += (now - self.last_rotation) * 0.001;
+            self.last_rotation = now;
+
             model_view_matrix = glm::rotate_normalized_axis(
                 &model_view_matrix,
-                self.square_rotation.clone(),
+                self.square_rotation.clone() as f32,
                 &rotation_vector,
             );
         }
