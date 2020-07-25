@@ -92,9 +92,9 @@ impl RenderObjectTrait for Box2D {
         );
         let colors: [SingleColor; 4] = [
             SingleColor::new(1., 0., 0., 1.),
-            SingleColor::new(1., 1., 1., 1.),
-            SingleColor::new(1., 1., 1., 1.),
-            SingleColor::new(1., 1., 1., 1.),
+            SingleColor::new(1., 0.5, 1., 1.),
+            SingleColor::new(1., 1., 0.5, 1.),
+            SingleColor::new(0., 1., 1., 1.),
         ];
         let buffer = Box2D::init_buffers(&gl, &vertices.points_as_array(), &colors);
 
