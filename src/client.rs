@@ -1,5 +1,3 @@
-use crate::input::UserInput;
-use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::*;
 use crate::canvas::CanvasData;
 use crate::transform::Transform;

@@ -1,4 +1,3 @@
-use web_sys::HtmlCanvasElement;
 use crate::canvas::CanvasData;
 use crate::utils::console_log;
 use core::f32::consts::PI;

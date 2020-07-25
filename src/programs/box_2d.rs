@@ -4,7 +4,7 @@ use nalgebra_glm as glm;
 use super::cube::{plane::Plane2D, point::{Point2D}};
 use crate::canvas::CanvasData;
 use crate::transform::Transform;
-use crate::{utils::console_log, RenderObjectTrait};
+use crate::{RenderObjectTrait};
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
@@ -33,11 +33,9 @@ impl Box2D {
     fn init_buffers(gl: &GL, vertices: &Vec<f32>) -> WebGlBuffer {
         let position_buffer = gl.create_buffer().unwrap();
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
-        let positions = [-1., 1., 1., 1., -1., -1., 1., -1.];
 
         unsafe {
             let vert_array = js_sys::Float32Array::view(&vertices);
-            // let vert_array = js_sys::Float32Array::view(&positions);
 
             gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
         }
