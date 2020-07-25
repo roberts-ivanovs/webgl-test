@@ -1,5 +1,6 @@
 use crate::input::UserInput;
 use nalgebra_glm as glm;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use super::{
     colors::SingleColor,
@@ -33,6 +34,7 @@ pub struct Box2D {
     pub input: UserInput,
     vertices: Plane2D,
     colors: [SingleColor; 4],
+    square_rotation: f32,
 }
 
 impl Box2D {
@@ -108,10 +110,11 @@ impl RenderObjectTrait for Box2D {
             transform,
             input,
             colors,
+            square_rotation: 0.,
         }
     }
 
-    fn draw_scene(&self, gl: &GL, canvas: &CanvasData) {
+    fn draw_scene(&mut self, gl: &GL, canvas: &CanvasData) {
         gl.clear_color(0., 0., 0., 1.);
         gl.clear_depth(1.);
         gl.enable(GL::DEPTH_TEST);
@@ -132,7 +135,18 @@ impl RenderObjectTrait for Box2D {
             self.input.mouse_y_centered / 100.,
             self.transform.get_trans_z(),
         );
-        let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
+        let mut model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
+
+        {
+            // Perform rotation
+            let rotation_vector = glm::vec3(0., 0., 1.);
+            self.square_rotation += 0.1;
+            model_view_matrix = glm::rotate_normalized_axis(
+                &model_view_matrix,
+                self.square_rotation.clone(),
+                &rotation_vector,
+            );
+        }
 
         {
             // Set vertices
@@ -169,12 +183,9 @@ impl RenderObjectTrait for Box2D {
                 buffer_type,
                 normalize,
                 stride,
-                offset
+                offset,
             );
-            gl.enable_vertex_attrib_array(
-                self.attribute_locations.vertex_color as u32
-            );
-
+            gl.enable_vertex_attrib_array(self.attribute_locations.vertex_color as u32);
         }
 
         gl.use_program(Some(&self.program));

@@ -26,7 +26,7 @@ pub trait RenderObjectTrait {
     fn set_transform(&mut self, transform: Transform);
     fn input(&mut self) -> &mut UserInput;
     fn set_input(&mut self, input: UserInput);
-    fn draw_scene(&self, gl: &GL, canvas: &CanvasData);
+    fn draw_scene(&mut self, gl: &GL, canvas: &CanvasData);
 }
 
 #[wasm_bindgen]
