@@ -68,12 +68,12 @@ impl Cube {
         let index_buffer = gl.create_buffer().unwrap();
         gl.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&index_buffer));
         let indices = [
-            0, 1, 2, 0, 2, 3, // front
-            4, 5, 6, 4, 6, 7, // back
-            4, 5, 1, 4, 1, 0, // left
-            3, 2, 6, 3, 6, 7, // right
-            1, 5, 6, 1, 6, 2, // top
-            0, 4, 7, 0, 7, 3, // bottom
+            0,  1,  2,      0,  2,  3,    // front
+            4,  5,  6,      4,  6,  7,    // back
+            8,  9,  10,     8,  10, 11,   // top
+            12, 13, 14,     12, 14, 15,   // bottom
+            16, 17, 18,     16, 18, 19,   // right
+            20, 21, 22,     20, 22, 23,   // left
         ];
 
         unsafe {
@@ -140,8 +140,8 @@ impl RenderObjectTrait for Cube {
         let bottom = Plane3D::new(
             Point3D::new(-scale, -scale, scale),
             Point3D::new(-scale, -scale, -scale),
-            Point3D::new(scale, scale, -scale),
-            Point3D::new(scale, scale, scale),
+            Point3D::new(scale, -scale, -scale),
+            Point3D::new(scale, -scale, scale),
         );
         let sides: [Plane3D; 6] = [front, back, left, right, top, bottom];
         let mut vertices = vec![];
