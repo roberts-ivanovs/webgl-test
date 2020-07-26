@@ -70,10 +70,10 @@ impl Cube {
         let indices = [
             0, 1, 2, 0, 2, 3, // front
             4, 5, 6, 4, 6, 7, // back
-            8, 9, 10, 8, 10, 11, // left
-            12, 13, 14, 12, 14, 15, // right
-            16, 17, 18, 16, 18, 19, // top
-            17, 21, 22, 20, 22, 23, // bottom
+            4, 5, 1, 4, 1, 0, // left
+            3, 2, 6, 3, 6, 7, // right
+            1, 5, 6, 1, 6, 2, // top
+            0, 4, 7, 0, 7, 3, // bottom
         ];
 
         unsafe {
@@ -155,12 +155,12 @@ impl RenderObjectTrait for Cube {
         // console_log(&format!("vertices {:?} {:?}", vertices, sides));
 
         let colors: [SingleColor; 6] = [
-            SingleColor::new(1., 1., 1., 1.),  // front
+            SingleColor::new(1., 1., 1., 1.), // front
             SingleColor::new(1., 0., 0., 1.), // back
-            SingleColor::new(0., 1., 0., 1.),  // left
-            SingleColor::new(0., 0., 1., 1.),  // right
+            SingleColor::new(0., 1., 0., 1.), // left
+            SingleColor::new(0., 0., 1., 1.), // right
             SingleColor::new(1., 1., 0., 1.), // top
-            SingleColor::new(1., 0., 1., 1.),  // bottom
+            SingleColor::new(1., 0., 1., 1.), // bottom
         ];
         let buffer = Cube::init_buffers(&gl, &vertices, &colors);
 
@@ -210,8 +210,10 @@ impl RenderObjectTrait for Cube {
         );
         empty_matrix.fill_with_identity();
         let translation_vector = glm::vec3(
-            self.input.mouse_x_centered / 100.,
-            self.input.mouse_y_centered / 100.,
+            // self.input.mouse_x_centered / 100.,
+            0.,
+            // self.input.mouse_y_centered / 100.,
+            0.,
             self.transform.get_trans_z(),
         );
         let mut model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
@@ -220,25 +222,33 @@ impl RenderObjectTrait for Cube {
             // Perform rotation
             let rotation_vector = glm::vec3(0., 0., 1.);
 
+            let mut z_val_rot = 0.;
+            if self.input.mouse_down {
+                z_val_rot = self.input.mouse_x_centered * 0.01;
+            }
+
             model_view_matrix = glm::rotate_normalized_axis(
                 &model_view_matrix,
-                self.square_rotation.clone() as f32,
+                z_val_rot,
+                // self.square_rotation.clone() as f32,
+                &rotation_vector,
+            );
+
+            let rotation_vector = glm::vec3(1., 0., 0.);
+
+            model_view_matrix = glm::rotate_normalized_axis(
+                &model_view_matrix,
+                self.input.mouse_y_centered * 0.01,
+                // self.square_rotation.clone() as f32,
                 &rotation_vector,
             );
             let rotation_vector = glm::vec3(0., 1., 0.);
 
             model_view_matrix = glm::rotate_normalized_axis(
                 &model_view_matrix,
-                self.square_rotation.clone() as f32 * 0.7,
+                -self.input.mouse_x_centered * 0.01,
                 &rotation_vector,
             );
-            // let rotation_vector = glm::vec3(0., 1., 1.);
-
-            // model_view_matrix = glm::rotate_normalized_axis(
-            //     &model_view_matrix,
-            //     self.square_rotation.clone() as f32,
-            //     &rotation_vector,
-            // );
         }
 
         {
@@ -305,7 +315,6 @@ impl RenderObjectTrait for Cube {
             let now = Date::now();
             self.square_rotation += (now - self.last_rotation) * 0.001;
             self.last_rotation = now;
-
         }
     }
 }
