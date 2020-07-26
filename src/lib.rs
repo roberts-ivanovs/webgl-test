@@ -20,7 +20,6 @@ use crate::canvas::CanvasData;
 
 
 pub trait RenderObjectTrait {
-
     fn new(gl: &GL, program: WebGlProgram, transform: Transform) -> Self where Self: Sized;
     fn transform(&self) -> &Transform;
     fn set_transform(&mut self, transform: Transform);

@@ -1,3 +1,4 @@
+use crate::programs::cube::Cube;
 use wasm_bindgen::prelude::*;
 use crate::canvas::CanvasData;
 use crate::transform::Transform;
@@ -72,9 +73,8 @@ impl GlClient {
 
         match opt {
             RenderableOption::Cube => {
-                // let object = RenderObject::Cube(Cube::new(1.));
-                // TODO implement cube rendering
-                self.object = None;
+                let object: Box<Cube> = Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
+                self.object = Some(object);
             }
             RenderableOption::Box2D => {
                 let object: Box<Box2D> = Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));

@@ -22,8 +22,8 @@ pub struct AttributeLocations {
 }
 
 pub struct UniformLocations {
-    projection_matrix: WebGlUniformLocation,
-    model_view_matrix: WebGlUniformLocation,
+    pub projection_matrix: WebGlUniformLocation,
+    pub model_view_matrix: WebGlUniformLocation,
 }
 
 pub struct Box2D {
@@ -62,7 +62,7 @@ impl Box2D {
 
             colors.iter().for_each(|p| {
                 p.as_array().iter().for_each(|col| {
-                    returnable.push(col.clone());
+                    returnable.push(col.clone().clone());
                 });
             });
             let colors_array = js_sys::Float32Array::view(&returnable);

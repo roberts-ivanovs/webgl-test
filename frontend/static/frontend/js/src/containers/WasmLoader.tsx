@@ -14,9 +14,9 @@ const FPS_THROTTLE = 1000 / 144; // 60fps
 export default function WasmLoader({ wasm }: Props): ReactElement {
   const [canvas, setCanvas] = useState<CanvasData>();
   const [client, setClient] = useState<GlClient>();
-  const [width, setWidth] = useState(800);
+  const [width, setWidth] = useState(1000);
   const [degrees, setDegrees] = useState(45);
-  const [height, setHeight] = useState(800);
+  const [height, setHeight] = useState(1000);
   const canvasId = 'canvasRust';
   const [rectEl, setRectEl] = useState<DOMRect>();
 
