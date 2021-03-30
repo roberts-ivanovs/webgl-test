@@ -9,7 +9,7 @@ pylint-django = "*"
 black = "*"
 
 [packages]
-django = "~=3.0.2"
+django = "~=3.0.12"
 yapf = "*"
 flake8 = "*"
 psycopg2 = "*"
